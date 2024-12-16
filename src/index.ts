@@ -60,6 +60,12 @@ function displayTable(data: Record<string, string>[]) {
                 return (rangeOrder.indexOf(aValue) - rangeOrder.indexOf(bValue)) * (sortDirection === "asc" ? 1 : -1);
             }
 
+            if (currentSortKey === "World") {
+                const aWorld = parseInt(aValue) || 0;
+                const bWorld = parseInt(bValue) || 0;
+                return (aWorld - bWorld) * (sortDirection === "asc" ? 1 : -1);
+            }
+
             return aValue.localeCompare(bValue) * (sortDirection === "asc" ? 1 : -1);
         });
     }
