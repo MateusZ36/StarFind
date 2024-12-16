@@ -1,41 +1,40 @@
-
-
 import * as a1lib from "alt1";
-
 import "./index.html";
 import "./appconfig.json";
 import "./css/style.css";
 import "./icon.png";
 import Papa from "papaparse";
+import isEqual from "lodash/isEqual";
 
 const SHEET_CSV_URL =
     "https://docs.google.com/spreadsheets/d/1ctBuqO42ZYYheuEIsbJO1NFPAJsoMrJv9oWxyhsBH9g/export?format=csv&gid=1852026355";
 
 const output = document.getElementById("output") as HTMLElement;
+let previousData: Record<string, string>[] | null = null;
 
 async function fetchAndDisplaySheet() {
-  try {
+    try {
+        const response = await fetch(SHEET_CSV_URL);
+        if (!response.ok) {
+            throw new Error("Failed to fetch the Google Sheet.");
+        }
+        const csvText = await response.text();
 
-    const response = await fetch(SHEET_CSV_URL);
-    if (!response.ok) {
-      throw new Error("Failed to fetch the Google Sheet.");
+        const parsedData = Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+        });
+
+        const data = parsedData.data as Record<string, string>[];
+
+        if (!isEqual(data, previousData)) {
+            previousData = data;
+            displayTable(data);
+        }
+    } catch (error) {
+        console.error("Error fetching or parsing Google Sheet:", error);
+        output.innerHTML = "<p>Error loading data. Please try again later.</p>";
     }
-    const csvText = await response.text();
-
-
-    const parsedData = Papa.parse(csvText, {
-      header: true,
-      skipEmptyLines: true,
-    });
-
-    const data = parsedData.data as Record<string, string>[];
-
-
-    displayTable(data);
-  } catch (error) {
-    console.error("Error fetching or parsing Google Sheet:", error);
-    output.innerHTML = "<p>Error loading data. Please try again later.</p>";
-  }
 }
 
 function displayTable(data: Record<string, string>[]) {
@@ -44,10 +43,7 @@ function displayTable(data: Record<string, string>[]) {
         return;
     }
 
-
     const table = document.createElement("table");
-    table.border = "1";
-
 
     const headers = Object.keys(data[0]);
     const thead = document.createElement("thead");
@@ -65,21 +61,17 @@ function displayTable(data: Record<string, string>[]) {
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-
     const tbody = document.createElement("tbody");
     data.forEach((row) => {
         const tr = document.createElement("tr");
-
 
         headers.forEach((header) => {
             if (header !== "F2P") {
                 const td = document.createElement("td");
 
                 if (header === "World") {
-
                     const worldName = row[header] || "";
                     td.textContent = worldName;
-
 
                     const icon = document.createElement("img");
                     icon.classList.add("icon-size");
@@ -89,7 +81,6 @@ function displayTable(data: Record<string, string>[]) {
                     } else {
                         icon.src = "https://runescape.wiki/images/P2P_icon.png";
                     }
-
 
                     td.prepend(icon);
                 } else {
@@ -109,6 +100,7 @@ function displayTable(data: Record<string, string>[]) {
 }
 
 fetchAndDisplaySheet();
+setInterval(fetchAndDisplaySheet, 60000);
 
 if (window.alt1) {
     alt1.identifyAppUrl("./appconfig.json");
