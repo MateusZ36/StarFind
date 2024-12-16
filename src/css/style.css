@@ -13,7 +13,6 @@
 }
 
 
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -22,18 +21,12 @@ table {
 }
 
 th, td {
-    padding: 10px;
+    padding: 5px;
     text-align: center;
     border: 1px solid #ddd;
 }
 
 th {
-    background-color: #f4f4f4;
-}
-
-th:hover {
-    cursor: pointer;
-    background-color: #ddd;
 }
 
 input[type="text"] {
@@ -43,3 +36,11 @@ input[type="text"] {
     box-sizing: border-box;
 }
 
+.header {
+    top: 15px;
+    text-align: center;
+    background: url(https://runeapps.org/nis/alt1-currentskin/nisbutton.png) 0px -100%/24px 400% repeat content-box;
+    background-color: black;
+    color: black;
+    z-index: 1;
+}
