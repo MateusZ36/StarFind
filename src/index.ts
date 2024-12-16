@@ -11,6 +11,8 @@ const SHEET_CSV_URL =
 
 const output = document.getElementById("output") as HTMLElement;
 let previousData: Record<string, string>[] | null = null;
+let currentSortKey: string | null = null;
+let sortDirection: "asc" | "desc" = "asc";
 
 async function fetchAndDisplaySheet() {
     try {
@@ -43,6 +45,25 @@ function displayTable(data: Record<string, string>[]) {
         return;
     }
 
+    if (currentSortKey) {
+        data.sort((a, b) => {
+            const aValue = (a[currentSortKey] || "").toLowerCase().trim();
+            const bValue = (b[currentSortKey] || "").toLowerCase().trim();
+
+            if (currentSortKey === "Size") {
+                const sizeOrder = ["", "tub", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"];
+                return (sizeOrder.indexOf(aValue) - sizeOrder.indexOf(bValue)) * (sortDirection === "asc" ? 1 : -1);
+            }
+
+            if (currentSortKey === "Size Range") {
+                const rangeOrder = ["", "small", "med", "big", "very big"];
+                return (rangeOrder.indexOf(aValue) - rangeOrder.indexOf(bValue)) * (sortDirection === "asc" ? 1 : -1);
+            }
+
+            return aValue.localeCompare(bValue) * (sortDirection === "asc" ? 1 : -1);
+        });
+    }
+
     const table = document.createElement("table");
 
     const headers = Object.keys(data[0]);
@@ -54,6 +75,16 @@ function displayTable(data: Record<string, string>[]) {
         if (header !== "F2P") {
             const th = document.createElement("th");
             th.textContent = header;
+            th.style.cursor = "pointer";
+            th.addEventListener("click", () => {
+                if (currentSortKey === header) {
+                    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+                } else {
+                    currentSortKey = header;
+                    sortDirection = "asc";
+                }
+                displayTable(data);
+            });
             headerRow.appendChild(th);
         }
     });
@@ -100,7 +131,7 @@ function displayTable(data: Record<string, string>[]) {
 }
 
 fetchAndDisplaySheet();
-setInterval(fetchAndDisplaySheet, 60000);
+setInterval(fetchAndDisplaySheet, 30000);
 
 if (window.alt1) {
     alt1.identifyAppUrl("./appconfig.json");
