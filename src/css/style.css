@@ -21,12 +21,12 @@ table {
 }
 
 th, td {
-    padding: 5px;
     text-align: center;
     border: 1px solid #ddd;
 }
 
-th {
+tr:nth-child(even) {
+    background-color: rgba(221, 221, 221, 0.1);
 }
 
 input[type="text"] {
